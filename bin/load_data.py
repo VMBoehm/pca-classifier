@@ -61,7 +61,6 @@ def load_cifar10(dataset=_get_datafolder_path()+'/cifar10/cifar-10-python.tar.gz
     """
 
     datasetfolder = os.path.dirname(dataset)
-    print(datasetfolder)
     if not os.path.isfile(dataset):
         if not os.path.exists(datasetfolder):
             os.makedirs(datasetfolder)
@@ -69,14 +68,16 @@ def load_cifar10(dataset=_get_datafolder_path()+'/cifar10/cifar-10-python.tar.gz
         with tarfile.open(dataset) as tar:
             tar.extractall(path=datasetfolder)
         
-    train_x = np.empty((0,32*32*3))
     for i in range(5):
         batchName = os.path.join(datasetfolder,'cifar-10-batches-py/data_batch_{0}'.format(i + 1))
         with open(batchName, 'rb') as f:
             d = pkl.load(f, encoding='latin1')
-            data = d['data']
+            data = d['data']/255.
             label= d['labels']
-            train_x = np.vstack((train_x,data))
+            try:
+                train_x = data
+            except:
+                train_x = np.vstack((train_x,data))
             try:
                 train_y = np.append(train_y,np.asarray(label))
             except:

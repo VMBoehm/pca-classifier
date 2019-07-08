@@ -2,6 +2,7 @@ import matplotlib
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+import itertools
 
 def make_plots(x, input_type):
 
@@ -42,15 +43,22 @@ def make_acc_figure(modes,labels,results,num_classes, num_comp,path,plotname,col
     markers=['o','^','d','>','*','+']
     plt.figure()
     jj =0
+    legends=[]
+    plot_lines=[]
     for mode in modes:
         for label in labels:
+            legends.append('%s, %s'%(mode,label))
+            lines=[]
             for ii in range(num_classes):
-                if ii ==0:
-                    plt.plot(num_comp,results[mode][label]['accs'][:,ii],color=cmap(norm(ii)),marker=markers[jj],ls=ls[jj],label='%s, %s'%(mode,label))
-                else:
-                    plt.plot(num_comp,results[mode][label]['accs'][:,ii],color=cmap(norm(ii)),marker=markers[jj],ls=ls[jj])
+                l, = plt.plot(num_comp,results[mode][label]['accs'][:,ii],color=cmap(norm(ii)),marker=markers[jj],ls=ls[jj])
+                lines.append(l)
+            plot_lines.append(lines)
             jj+=1
-    plt.legend()
+
+    legend1 = plt.legend([plot_lines[ii][0] for ii in range(len(legends))], legends, loc='lower center')
+
+    plt.legend(plot_lines[0],np.arange(num_classes),ncol=2)
+    plt.gca().add_artist(legend1)
     plt.xlabel('# components')
     plt.ylabel('accuracies')
     if not os.path.exists(path):

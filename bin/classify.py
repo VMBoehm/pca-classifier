@@ -89,7 +89,7 @@ def perform_classification(modes, masks, inpath, outpath, pca=True, rerun=False)
                 accs=[]
                 nums=[]
                 for num in num_comp:
-                    print('ML', num)
+                    print(mode, label, num)
                     acc  = classify(x_test,targets_test,covs, num_classes, num=num)
                     accs+=[acc]
                 results[mode][label]['accs']=np.asarray(accs)

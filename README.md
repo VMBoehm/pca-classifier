@@ -1,3 +1,3 @@
 # Covariance Estimation 
 
-Compares different covariance estimators on different data sets
+classification with a Gaussian data model for different datsets and covariance estimation methods

@@ -71,6 +71,10 @@ def classify(data,labels,covs, num_classes, num, pca=False):
 
 def perform_classification(data, labels, modes, masks, num_classes,num_comp,inpath, outpath, tag, pca=True, rerun=False):
     outfile = os.path.join(outpath,'results_%s.pkl'%tag)
+    print(outfile, outpath)
+    if not os.path.exists(outpath):
+        os.makedirs(outpath)
+
     if os.path.isfile(outfile) and rerun==False:
         results = pkl.load(open(outfile, 'rb'))
     else:
@@ -111,19 +115,17 @@ def perform_classification(data, labels, modes, masks, num_classes,num_comp,inpa
                     acc  = classify(data,labels,covs, num_classes, num=num)
                     accs+=[acc]
                 results[mode][label]['accs']=np.asarray(accs)
-            if pca:
-                if mode=='ML':
-                    try:
-                        results['pca'][label]
-                    except:
-                        results['pca'][label]={}
-                        accs=[]
-                        for num in num_comp:
-                            print('pca', num)
-                            acc = classify(data,labels,covs, num_classes, num=num, pca=True)
-                            accs+=[acc]
-                        results['pca'][label]['accs']=np.asarray(accs)
-            if not os.path.exists(outpath):
-                os.makedirs(outpath)
+                if pca:
+                    if mode=='ML':
+                        try:
+                            results['pca'][label]
+                        except:
+                            results['pca'][label]={}
+                            accs=[]
+                            for num in num_comp:
+                                print('pca', num)
+                                acc = classify(data,labels,covs, num_classes, num=num, pca=True)
+                                accs+=[acc]
+                            results['pca'][label]['accs']=np.asarray(accs)
             pkl.dump(results, open(outfile, 'wb'))
     return results

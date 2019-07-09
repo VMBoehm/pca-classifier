@@ -118,4 +118,29 @@ def load_Gaussian_mnist(masking=0,mode=0,path=0):
     x_test  = data[:,5000:,:].reshape(-1,data.shape[-1])
     y_test  = labels[:,5000:].flatten()
         
-    return  x_train, y_train, x_test, y_test, dict(covs=covs, means=means) 
+    return  x_train, y_train, x_test, y_test, dict(covs=covs, means=means)
+
+
+def load_Gaussian_data(filename, train_num, test_num):
+    
+    data, covs, means = pkl.load(open(filename+'_num%d_train.pkl'%train_num,'rb'))
+
+    labels=[]
+    for ii in range(len(data)):
+        labels.append(np.ones((len(data[ii])))*ii)
+    labels = np.asarray(labels)
+
+    x_train = data.reshape(-1, data.shape[-1])
+    y_train = labels.flatten()
+
+    data,_,_ = pkl.load(open(filename+'_num%d_test.pkl'%test_num,'rb'))
+     
+    labels=[]
+    for ii in range(len(data)):
+        labels.append(np.ones((len(data[ii])))*ii)
+    labels = np.asarray(labels)
+
+    x_test = data.reshape(-1, data.shape[-1])
+    y_test = labels.flatten()   
+
+    return  x_train, y_train, x_test, y_test, dict(covs=covs, means=means)  

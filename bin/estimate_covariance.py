@@ -2,9 +2,11 @@ from sklearn.covariance import LedoitWolf, EmpiricalCovariance, OAS
 import scipy.linalg as lg
 import numpy.linalg as nlg
 from sklearn.decomposition import PCA
-import os 
+import os
+import numpy as np
+import pickle as pkl 
 
-def estimate_covariances(d_v,mv_in, mv_out,modes,masks,path):
+def estimate_covariances(d_v,mv_in, mv_out,modes,masks,path, pca=False, tru_cov=None, tru_mean=None):
     for mode in modes:
         for masking in masks:
             for ii, d in enumerate(d_v):
@@ -12,11 +14,14 @@ def estimate_covariances(d_v,mv_in, mv_out,modes,masks,path):
                     filename = os.path.join(path,'cov_estimate_%s_%d_masked.pkl'%(mode,ii))
                 else:   
                     filename = os.path.join(path,'cov_estimate_%s_%d.pkl'%(mode,ii)) 
+                print(filename)
                 if not os.path.isfile(filename):
                     cov = CovarianceEstimator(mode=mode,label=ii,masking=masking)
-                    cov.fit(d,mv_in[ii],mv_out[ii])
-                    cov.diag_decomp()          
-                    cov.pca(d,mv_in[ii],mv_out[ii])
+                    print(tru_cov[ii].shape)
+                    cov.fit(d,mv_in[ii],mv_out[ii],tru_cov[ii],tru_mean[ii])
+                    cov.diag_decomp()
+                    if pca:
+                        cov.pca(d,mv_in[ii],mv_out[ii])
                     cov.save(path)
     return True
 
@@ -25,7 +30,7 @@ class CovarianceEstimator():
 
     def __init__(self,mode, label, masking):
         
-        assert(mode in ['ML','OAS', 'LW','NERCOME'])
+        assert(mode in ['ML','OAS', 'LW','NERCOME', 'TRUE'])
         self.mode   = mode
         self.label  = label
         self.masking= masking
@@ -122,7 +127,7 @@ class CovarianceEstimator():
         return best_esti
         
 
-    def fit(self,data, mask_in, mask_out):
+    def fit(self,data, mask_in, mask_out,cov=None,mean=None):
         
         data = self._data_prep(data, mask_in,mask_out)
         
@@ -134,6 +139,11 @@ class CovarianceEstimator():
             self.cov = LedoitWolf().fit(data).covariance_
         elif self.mode =='NERCOME':
             self.cov = self.nercome_estimator(data)
+        elif self.mode =='TRUE':
+            assert(cov is not None)
+            assert(mean is not None)
+            self.cov  = cov
+            self.mean = mean
         else: 
             raise ValueError
             

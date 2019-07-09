@@ -52,7 +52,7 @@ def load_mnist(dataset=_get_datafolder_path()+'/mnist/mnist.pkl.gz'):
     x_valid, targets_valid = valid_set[0], valid_set[1]
     x_test, targets_test = test_set[0], test_set[1]
     #omitting validation set for consistency
-    return x_train, targets_train, x_test, targets_test
+    return x_train, targets_train, x_test, targets_test, None
 
 
 def load_cifar10(dataset=_get_datafolder_path()+'/cifar10/cifar-10-python.tar.gz'):
@@ -75,9 +75,9 @@ def load_cifar10(dataset=_get_datafolder_path()+'/cifar10/cifar-10-python.tar.gz
             data = d['data']/255.
             label= d['labels']
             try:
-                train_x = data
-            except:
                 train_x = np.vstack((train_x,data))
+            except:
+                train_x = data
             try:
                 train_y = np.append(train_y,np.asarray(label))
             except:
@@ -86,9 +86,36 @@ def load_cifar10(dataset=_get_datafolder_path()+'/cifar10/cifar-10-python.tar.gz
     batchName = os.path.join(datasetfolder,'cifar-10-batches-py/test_batch')
     with open(batchName, 'rb') as f:
         d = pkl.load(f, encoding='latin1')
-        data = d['data']
+        data = d['data']/255.
         label= d['labels']
         test_x = data
         test_y = np.asarray(label)
                 
-    return train_x, train_y, test_x, test_y
+    return train_x, train_y, test_x, test_y, None
+
+
+def load_Gaussian_mnist(masking=0,mode=0,path=0):
+
+    if 0 in [masking,mode,path]:
+        filename='../data/Gaussian_mnist/ML_inpainted.pkl'
+    else:
+        print('here')
+        if masking:
+            label='masked'
+        else:
+            label='inpainted'
+        filename='%s_%s.pkl'%(mode,label)
+        filename=os.path.join(path,filename)
+
+    data, covs, means = pkl.load(open(filename,'rb'))
+    labels=[]
+    for ii in range(len(data)):
+        labels.append(np.ones((len(data[ii])))*ii)
+    labels = np.asarray(labels)
+    
+    x_train = data[:,:5000,:].reshape(-1,data.shape[-1])
+    y_train = labels[:,:5000].flatten()
+    x_test  = data[:,5000:,:].reshape(-1,data.shape[-1])
+    y_test  = labels[:,5000:].flatten()
+        
+    return  x_train, y_train, x_test, y_test, dict(covs=covs, means=means) 

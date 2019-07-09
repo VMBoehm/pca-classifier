@@ -59,7 +59,7 @@ def classify(data,labels,covs, num_classes, num, pca=False):
         acc+=[len(np.where(np.argsort(np.asarray(logprob),axis=0)[-1]==jj)[0])/len(dd)]
     return np.asarray(acc)
 
-def perform_classification(modes, masks, inpath, outpath, pca=True, rerun=False):
+def perform_classification(data, labels, modes, masks, num_classes,num_comp,inpath, outpath, pca=True, rerun=False):
     
     outfile = os.path.join(outpath,'results.pkl')
     if os.path.isfile(outfile) and rerun==False:
@@ -90,7 +90,7 @@ def perform_classification(modes, masks, inpath, outpath, pca=True, rerun=False)
                 nums=[]
                 for num in num_comp:
                     print(mode, label, num)
-                    acc  = classify(x_test,targets_test,covs, num_classes, num=num)
+                    acc  = classify(data,labels,covs, num_classes, num=num)
                     accs+=[acc]
                 results[mode][label]['accs']=np.asarray(accs)
                 if pca:

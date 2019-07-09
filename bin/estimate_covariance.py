@@ -6,7 +6,7 @@ import os
 import numpy as np
 import pickle as pkl 
 
-def estimate_covariances(d_v,mv_in, mv_out,modes,masks,path, pca=False, tru_cov=None, tru_mean=None):
+def estimate_covariances(d_v,mv_in, mv_out,modes,masks,path, pca=False, tru_cov=None, tru_mean=None, rerun=False):
     for mode in modes:
         for masking in masks:
             for ii, d in enumerate(d_v):
@@ -15,12 +15,14 @@ def estimate_covariances(d_v,mv_in, mv_out,modes,masks,path, pca=False, tru_cov=
                 else:   
                     filename = os.path.join(path,'cov_estimate_%s_%d.pkl'%(mode,ii)) 
                 print(filename)
-                if not os.path.isfile(filename):
+                if not os.path.isfile(filename) or rerun:
                     cov = CovarianceEstimator(mode=mode,label=ii,masking=masking)
-                    print(tru_cov[ii].shape)
-                    cov.fit(d,mv_in[ii],mv_out[ii],tru_cov[ii],tru_mean[ii])
+                    if mode == 'TRUE':
+                        cov.fit(d,mv_in[ii],mv_out[ii],tru_cov[ii],tru_mean[ii])
+                    else:
+                        cov.fit(d,mv_in[ii],mv_out[ii])
                     cov.diag_decomp()
-                    if pca:
+                    if mode=='ML':
                         cov.pca(d,mv_in[ii],mv_out[ii])
                     cov.save(path)
     return True

@@ -38,6 +38,8 @@ def get_log_prob(logdet,Cinv,data,mean):
 def classify(data,labels,covs, num_classes, num, pca=False):
     acc = []
     nums= []
+    Cinvs=[]
+    logdets=[]
     for jj in range(num_classes):
         indices = np.where(labels==jj)[0]
         dd      = data[indices]
@@ -50,35 +52,51 @@ def classify(data,labels,covs, num_classes, num, pca=False):
                 d_[:,cov.mask_in] = dd[:,cov.mask_in]
             if num > d_.shape[1]:
                 num = d_.shape[1]
-            if pca:
-                Cinv, logdetC = get_covariance(cov.pca_R,cov.pca_vars,num)
-            else:
-                Cinv, logdetC = get_covariance(cov.R,cov.vars,num)
+            try:
+                Cinv    = Cinvs[ii]
+                logdetC = logdets[ii]
+            except:
+                if pca:
+                    Cinv, logdetC = get_covariance(cov.pca_R,cov.pca_vars,num)
+                else:
+                    Cinv, logdetC = get_covariance(cov.R,cov.vars,num)
+                Cinvs.append(Cinv)
+                logdets.append(logdetC)
             logprob_= get_log_prob(logdetC,Cinv,d_,cov.mean)
             logprob+=[logprob_]
         acc+=[len(np.where(np.argsort(np.asarray(logprob),axis=0)[-1]==jj)[0])/len(dd)]
     return np.asarray(acc)
 
-def perform_classification(data, labels, modes, masks, num_classes,num_comp,inpath, outpath, pca=True, rerun=False):
-    
-    outfile = os.path.join(outpath,'results.pkl')
+
+
+def perform_classification(data, labels, modes, masks, num_classes,num_comp,inpath, outpath, tag, pca=True, rerun=False):
+    outfile = os.path.join(outpath,'results_%s.pkl'%tag)
     if os.path.isfile(outfile) and rerun==False:
         results = pkl.load(open(outfile, 'rb'))
     else:
         results = {}
-        if pca:
+    
+    if pca:
+        try:
+            results['pca']
+        except:
             results['pca']={}
-        for mode in modes:
+
+    for mode in modes:
+        try:
+            results[mode]
+        except:        
             results[mode] ={}
 
-            for masking in masks:
-                if masking:
-                    label = 'masked'
-                else:
-                    label = 'inpainted'
+        for masking in masks:
+            if masking:
+                label = 'masked'
+            else:
+                label = 'inpainted'
+            try:
+                results[mode][label]
+            except:
                 results[mode][label]={}
-                if pca and mode=='ML':
-                    results['pca'][label]={}
                 covs=[]
                 for ii in range(num_classes):
                     if masking:
@@ -93,15 +111,19 @@ def perform_classification(data, labels, modes, masks, num_classes,num_comp,inpa
                     acc  = classify(data,labels,covs, num_classes, num=num)
                     accs+=[acc]
                 results[mode][label]['accs']=np.asarray(accs)
-                if pca:
-                    if mode=='ML':
+            if pca:
+                if mode=='ML':
+                    try:
+                        results['pca'][label]
+                    except:
+                        results['pca'][label]={}
                         accs=[]
                         for num in num_comp:
                             print('pca', num)
-                            acc = classify(x_test,targets_test,covs, num_classes, num=num, pca=True)
+                            acc = classify(data,labels,covs, num_classes, num=num, pca=True)
                             accs+=[acc]
                         results['pca'][label]['accs']=np.asarray(accs)
-                if not os.path.exists(outpath):
-                    os.makedirs(outpath)
-                pkl.dump(results, open(outfile, 'wb'))
+            if not os.path.exists(outpath):
+                os.makedirs(outpath)
+            pkl.dump(results, open(outfile, 'wb'))
     return results

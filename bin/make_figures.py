@@ -9,7 +9,7 @@ def make_plots(x, input_type):
     num = np.int(np.floor(np.sqrt(len(x))))
     if num > 8:
         num = 8
-    if input_type=='mnist':
+    if input_type in ['mnist', 'fmnist']:
         fig, axes = plt.subplots(num,num,figsize=(num,num))
         plt.set_cmap('gray')
         k =0
@@ -31,7 +31,7 @@ def make_plots(x, input_type):
                 axes[i][j].imshow(img, interpolation='bilinear')
                 axes[i][j].axis('off')
         plt.show()
-    return True
+    return fig
 
 
 

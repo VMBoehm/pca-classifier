@@ -4,6 +4,9 @@ import gzip, zipfile, tarfile
 import os, shutil, re, string, urllib, fnmatch
 import pickle as pkl
 import numpy as np
+import sys
+sys.path.append('../../fashion-mnist/utils/')
+import mnist_reader
 
 def _download_mnist(dataset):
     """
@@ -33,11 +36,11 @@ def _get_datafolder_path():
     path = full_path +'/data'
     return path
 
+
 def load_mnist(dataset=_get_datafolder_path()+'/mnist/mnist.pkl.gz'):
     """
     load mnist dataset
     """
-
     if not os.path.isfile(dataset):
         datasetfolder = os.path.dirname(dataset)
         if not os.path.exists(datasetfolder):
@@ -53,6 +56,15 @@ def load_mnist(dataset=_get_datafolder_path()+'/mnist/mnist.pkl.gz'):
     x_test, targets_test = test_set[0], test_set[1]
     #omitting validation set for consistency
     return x_train, targets_train, x_test, targets_test, None
+
+
+def load_fmnist():
+    
+    x_train, y_train = mnist_reader.load_mnist('../data/fashion', kind='train')
+    x_test, y_test = mnist_reader.load_mnist('../data/fashion', kind='t10k')
+
+    return x_train, y_train, x_test, y_test, None
+
 
 
 def load_cifar10(dataset=_get_datafolder_path()+'/cifar10/cifar-10-python.tar.gz'):
@@ -99,7 +111,6 @@ def load_Gaussian_mnist(masking=0,mode=0,path=0):
     if 0 in [masking,mode,path]:
         filename='../data/Gaussian_mnist/ML_inpainted.pkl'
     else:
-        print('here')
         if masking:
             label='masked'
         else:

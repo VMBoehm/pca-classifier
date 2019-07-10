@@ -4,7 +4,22 @@ import numpy.linalg as nlg
 from sklearn.decomposition import PCA
 import os
 import numpy as np
-import pickle as pkl 
+import pickle as pkl
+
+
+def load_covariance(mode,mask,path,label):
+    if mask:
+        filename = os.path.join(path,'cov_estimate_%s_%d_masked.pkl'%(mode,label))
+    else:
+        filename = os.path.join(path,'cov_estimate_%s_%d.pkl'%(mode,label))
+    if os.path.isfile(filename):
+        cov = pkl.load(open(filename,'rb'))
+    else:   
+        cov = None
+        raise ValueError('%s doe not exist'%filename)
+
+    return cov
+
 
 def estimate_covariances(d_v,mv_in, mv_out,modes,masks,path, pca=False, tru_cov=None, tru_mean=None, rerun=False):
     for mode in modes:
@@ -22,7 +37,7 @@ def estimate_covariances(d_v,mv_in, mv_out,modes,masks,path, pca=False, tru_cov=
                     else:
                         cov.fit(d,mv_in[ii],mv_out[ii])
                     cov.diag_decomp()
-                    if mode=='ML':
+                    if mode=='ML' and pca:
                         cov.pca(d,mv_in[ii],mv_out[ii])
                     cov.save(path)
     return True
@@ -62,9 +77,10 @@ class CovarianceEstimator():
     def _data_prep(self,data, mask_in, mask_out):
         
         if len(mask_in)==data.shape[1]:
-            self.masking = False
             print('no zero variance pixels in data')
-        
+        else:
+            print('%d zero variance pixels'%len(mask_out))
+     
         if self.masking:
             data = data[:, mask_in]
         else:

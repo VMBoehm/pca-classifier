@@ -1,1 +1,1 @@
-name='pca-classifier'
+name='pca_classifier'

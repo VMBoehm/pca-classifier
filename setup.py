@@ -8,5 +8,5 @@ setup(name='pca_classifier',
       author='Vanessa Martina Boehm',
       author_email='vboehm@berkeley.edu',
       license='GNU General Public License v3.0',
-      packages=['pca_classifier'],
+      packages=['pca-classifier'],
       )

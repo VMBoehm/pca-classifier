@@ -1,6 +1,6 @@
 from setuptools import setup
 
-setup(name='pca-classifier',
+setup(name='pca_classifier',
       use_scm_version=True,
       setup_requires=['setuptools_scm'],
       description='(regularized) linear data compression and its application to classification and out of distribution detection',
@@ -8,5 +8,5 @@ setup(name='pca-classifier',
       author='Vanessa Martina Boehm',
       author_email='vboehm@berkeley.edu',
       license='GNU General Public License v3.0',
-      packages=['pca-classifier'],
+      packages=['pca_classifier'],
       )

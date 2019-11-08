@@ -22,7 +22,8 @@ def get_covariance(R,var,num,N=None):
 
     C_            = np.dot(R.T,np.dot(np.diag(var_), R))
 
-    if N==None:
+    if np.any(N)==None:
+        print('using internal estimate of recon error')
         C_+=np.eye(len(R.T))*sigma2
     else:
         C_+=N

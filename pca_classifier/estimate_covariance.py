@@ -79,7 +79,7 @@ class CovarianceEstimator():
     def decompress(self,comp_data):
 
         n_comp = comp_data.shape[-1]
-        decomp_data = np.einsum('ij,ki->kj',self.R[:n_comp],data,optimize=True)
+        decomp_data = np.einsum('ij,ki->kj',self.R[:n_comp],comp_data,optimize=True)
         decomp_data+=self.mean
 
         return decomp_data

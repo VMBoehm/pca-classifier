@@ -68,7 +68,20 @@ class CovarianceEstimator():
         if len(np.where(self.vars==0.)[0])>0:
             print('covariance estimate contains singular eigenvalues')
         return True
-    
+
+    def compress(self,data,n_comp):
+
+        comp_data = np.einsum('ij,kj->ki',self.R[:n_comp],data,optimize=True)
+
+        return comp_data
+
+    def decompress(self,comp_data)
+
+        n_comp = comp_data.shape[-1]
+        decomp_data = np.einsum('ij,ki->kj',self.R[:n_comp],data,optimize=True)
+
+        return decomp_data
+
     def dist(self,cov1,cov2=None):
         """
         distance between two estimates used for the nercome estimator

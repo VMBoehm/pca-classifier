@@ -71,6 +71,7 @@ class CovarianceEstimator():
 
     def compress(self,data,n_comp):
 
+        data      = data-self.mean
         comp_data = np.einsum('ij,kj->ki',self.R[:n_comp],data,optimize=True)
 
         return comp_data
@@ -79,6 +80,7 @@ class CovarianceEstimator():
 
         n_comp = comp_data.shape[-1]
         decomp_data = np.einsum('ij,ki->kj',self.R[:n_comp],data,optimize=True)
+        decomp_data+=self.mean
 
         return decomp_data
 
@@ -143,6 +145,7 @@ class CovarianceEstimator():
         """
 
         self.dataset = dataset
+        self.mean    = np.expand_dims(data.mean(axis=0),0)
 
         if self.mode =='ML':
             self.cov = EmpiricalCovariance().fit(data).covariance_

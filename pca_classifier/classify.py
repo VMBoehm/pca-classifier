@@ -4,7 +4,7 @@ import numpy.linalg as nlg
 import os
 import pickle as pkl
 
-def get_covariance(R,var,num):
+def get_covariance(R,var,num,sigma=True):
     '''
     get covarinace estimation for specific number of components
     num: number of components
@@ -20,7 +20,9 @@ def get_covariance(R,var,num):
     else: 
         sigma2 = 0.
 
-    C_            = np.dot(R.T,np.dot(np.diag(var_), R))+np.eye(len(R.T))*sigma2
+    C_            = np.dot(R.T,np.dot(np.diag(var_), R))
+    if sigma:
+        C_+=np.eye(len(R.T))*sigma2
     Cinv          = lg.inv(C_)
     sign ,logdetC = nlg.slogdet(C_)
     

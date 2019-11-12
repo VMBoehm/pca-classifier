@@ -26,7 +26,6 @@ def get_covariance(R,var,num,N=None,reg=True):
 
     if reg:
         if np.any(N)==None:
-            print('using internal estimate of recon error')
             C_+=np.eye(len(R.T))*sigma2
         else:
             C_+=N
@@ -77,7 +76,10 @@ class CovarianceEstimator():
         return True
 
     def compress(self,data,n_comp):
-
+        """
+        data: array of data
+        n_comp: number of components to keep
+        """
         data      = data-self.mean
         comp_data = np.einsum('ij,kj->ki',self.R[:n_comp],data,optimize=True)
 

@@ -60,12 +60,12 @@ def get_latent_space_log_prob(data,cov,n_comp,vol=True):
     vol : boolean, wether to include volume term
     '''
     z = cov.compress(data,n_comp)
-    S = np.diag(cov.var[0:n_comp])
-    sSs = np.dot(z.T,np.dot(S**(-1),z))
+    S = np.diag(cov.vars[0:n_comp])
+    print(S)
+    sSs = np.einsum('ij,jj,ij->i',z,S**(-1),z,optimize=True)
     logprob = -0.5*sSs
     if vol:
         _, logdet= nlg.slogdet(S)
         logprob+=(-0.5*logdet-0.5*n_comp*np.log(2*np.pi))
-
     return logprob
 

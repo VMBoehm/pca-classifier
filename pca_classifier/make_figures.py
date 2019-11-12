@@ -19,7 +19,7 @@ def make_plots(x, input_type):
                 axes[i][j].imshow(x[k].reshape(28,28))
                 axes[i][j].axis('off')
         
-        plt.show()
+        plt.close()
         
     elif input_type=='cifar10':
         fig, axes = plt.subplots(num,num,figsize=(num,num))
@@ -30,7 +30,7 @@ def make_plots(x, input_type):
                 img = np.swapaxes(np.reshape((x[k]),(32,32,3),'F'),0,1)
                 axes[i][j].imshow(img, interpolation='bilinear')
                 axes[i][j].axis('off')
-        plt.show()
+        plt.close()
     return fig
 
 

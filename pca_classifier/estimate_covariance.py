@@ -6,12 +6,41 @@ import os
 import numpy as np
 import pickle as pkl
 
+def get_covariance(R,var,num,N=None,reg=True):
+    '''
+    get covarinace estimation for specific number of components
+    num: number of components
+    R: matrix of eigenvectors
+    var: array of eigenvalues
+    '''
+    fl   = len(var)
+    var_ = var[0:num]
+    R    = R[0:num]
 
-def load_covariance(mode,mask,path,label):
-    if mask:
-        filename = os.path.join(path,'cov_estimate_%s_%d_masked.pkl'%(mode,label))
+    if num<fl:
+        sigma2 = np.mean(var[num::])
     else:
-        filename = os.path.join(path,'cov_estimate_%s_%d.pkl'%(mode,label))
+        sigma2 = 0.
+
+    C_            = np.dot(R.T,np.dot(np.diag(var_), R))
+
+    if reg:
+        if np.any(N)==None:
+            print('using internal estimate of recon error')
+            C_+=np.eye(len(R.T))*sigma2
+        else:
+            C_+=N
+
+    Cinv          = lg.inv(C_)
+    sign ,logdetC = nlg.slogdet(C_)
+
+    return Cinv, logdetC
+
+
+def load_covariance(path,dataset,mode):
+    
+    filename = os.path.join(path,'cov_estimate_%s_%s.pkl'%(dataset,mode))
+
     if os.path.isfile(filename):
         cov = pkl.load(open(filename,'rb'))
     else:   
@@ -19,28 +48,6 @@ def load_covariance(mode,mask,path,label):
         raise ValueError('%s doe not exist'%filename)
 
     return cov
-
-
-def estimate_covariances(d_v,mv_in, mv_out,modes,masks,path, pca=False, tru_cov=None, tru_mean=None, rerun=False):
-    for mode in modes:
-        for masking in masks:
-            for ii, d in enumerate(d_v):
-                if masking:
-                    filename = os.path.join(path,'cov_estimate_%s_%d_masked.pkl'%(mode,ii))
-                else:   
-                    filename = os.path.join(path,'cov_estimate_%s_%d.pkl'%(mode,ii)) 
-                print(filename)
-                if not os.path.isfile(filename) or rerun:
-                    cov = CovarianceEstimator(mode=mode,label=ii,masking=masking)
-                    if mode == 'TRUE':
-                        cov.fit(d,mv_in[ii],mv_out[ii],tru_cov[ii],tru_mean[ii])
-                    else:
-                        cov.fit(d,mv_in[ii],mv_out[ii])
-                    cov.diag_decomp()
-                    if mode=='ML' and pca:
-                        cov.pca(d,mv_in[ii],mv_out[ii])
-                    cov.save(path)
-    return True
 
 
 class CovarianceEstimator():

@@ -91,6 +91,12 @@ class CovarianceEstimator():
 
         return decomp_data
 
+    def get_N(self,data,n_comp):
+        recon = self.decompress(self.compress(data,n_comp))
+        rms2  = np.mean((data-recon)**2,axis=0)
+        N     = np.diag(rms2)
+        return N
+
     def dist(self,cov1,cov2=None):
         """
         distance between two estimates used for the nercome estimator

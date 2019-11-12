@@ -59,10 +59,10 @@ def get_latent_space_log_prob(data,cov,n_comp,vol=True):
     n_comp: int, number of components to keep in the pca
     vol : boolean, wether to include volume term
     '''
-    z = cov.compress(data,n_comp)
-    S = np.diag(cov.vars[0:n_comp])
-    print(S)
-    sSs = np.einsum('ij,jj,ij->i',z,S**(-1),z,optimize=True)
+    z    = cov.compress(data,n_comp)
+    S    = np.diag(cov.vars[0:n_comp])
+    Sinv = np.diag(cov.vars[0:n_comp]**(-1))
+    sSs  = np.einsum('ij,jj,ij->i',z,Sinv,z,optimize=True)
     logprob = -0.5*sSs
     if vol:
         _, logdet= nlg.slogdet(S)

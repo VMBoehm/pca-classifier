@@ -6,36 +6,6 @@ import os
 import numpy as np
 import pickle as pkl
 
-def get_covariance(R,var,num,N=None,reg=True):
-    '''
-    get covarinace estimation for specific number of components
-    num: number of components
-    R: matrix of eigenvectors
-    var: array of eigenvalues
-    '''
-    fl   = len(var)
-    var_ = var[0:num]
-    R    = R[0:num]
-
-    if num<fl:
-        sigma2 = np.mean(var[num::])
-    else:
-        sigma2 = 0.
-
-    C_            = np.dot(R.T,np.dot(np.diag(var_), R))
-
-    if reg:
-        if np.any(N)==None:
-            C_+=np.eye(len(R.T))*sigma2
-        else:
-            C_+=N
-
-    Cinv          = lg.inv(C_)
-    sign ,logdetC = nlg.slogdet(C_)
-
-    return Cinv, logdetC
-
-
 def load_covariance(path,dataset,mode):
     
     filename = os.path.join(path,'cov_estimate_%s_%s.pkl'%(dataset,mode))
@@ -93,10 +63,15 @@ class CovarianceEstimator():
 
         return decomp_data
 
-    def get_N(self,data,n_comp):
-        recon = self.decompress(self.compress(data,n_comp))
-        rms2  = np.mean((data-recon)**2,axis=0)
-        N     = np.diag(rms2)
+    def get_N(self,data,n_comp,threshhold=1e-60):
+        """
+        pixelwise modeling error, regularized
+        """
+        recon   = self.decompress(self.compress(data,n_comp))
+        rms2    = np.mean((data-recon)**2,axis=0)
+        indices = np.where(rms2<threshhold**2)[0]
+        rms2[indices] = 1e4
+        N = np.diag(rms2)
         return N
 
     def dist(self,cov1,cov2=None):

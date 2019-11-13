@@ -24,7 +24,6 @@ def get_covariance(R,var,num,N=None,reg=True,mask=None):
 
     if reg:
         if np.any(N)==None:
-            print('using internal estimate of recon error')
             C_+=np.eye(len(R.T))*sigma2
         else:
             C_+=N

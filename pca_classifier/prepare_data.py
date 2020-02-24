@@ -23,7 +23,7 @@ def mask_low_var_pixels(data_set1, data_set2=None, threshhold=1e-8):
   mask_in, mask_out = identify_low_var_pixels(data_set2,threshhold)
   masked_data = data_set1[:,mask_in]
 
-  return masked_data, None
+  return masked_data, mask_in, mask_out
 
 def inpaint_low_var_pixels(data_set1, data_set2=None, threshhold=1e-8,inpaint_val=1e-1):
   """

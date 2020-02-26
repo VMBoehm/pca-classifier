@@ -1,3 +1,3 @@
 # PCA Classifier 
 
-classification with Gaussian likelihood ratios for different datasets and covariance estimation methods
+classification and outlier detectioon with Gaussian likelihoods and likelihood ratios for different datasets and covariance estimation methods.

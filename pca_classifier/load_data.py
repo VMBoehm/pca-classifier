@@ -1,7 +1,8 @@
 # functions to load different datasets (mnist, cifar10, random Gaussian data) 
 
 import gzip, zipfile, tarfile
-import os, shutil, re, string, urllib, fnmatch
+import os, shutil, re, string, fnmatch
+import urllib.request as urllib
 import pickle as pkl
 import numpy as np
 import sys
@@ -12,7 +13,7 @@ def _download_mnist(dataset):
     """
     origin = ('http://www.iro.umontreal.ca/~lisa/deep/data/mnist/mnist.pkl.gz')
     print('Downloading data from %s' %origin)
-    urllib.request.urlretrieve(origin, dataset)
+    urllib.urlretrieve(origin, dataset)
 
 
 def _download_cifar10(dataset):
@@ -22,7 +23,7 @@ def _download_cifar10(dataset):
     origin = ('https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz')
     
     print('Downloading data from %s' % origin)
-    urllib.request.urlretrieve(origin,dataset)
+    urllib.urlretrieve(origin,dataset)
 
 def _download_fmnist(dataset,subset,labels=False):
 
@@ -34,7 +35,7 @@ def _download_fmnist(dataset,subset,labels=False):
         origin = ('http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/%s-images-idx3-ubyte.gz'%subset)
 
     print('Downloading data from %s' % origin)
-    urllib.request.urlretrieve(origin,dataset)
+    urllib.urlretrieve(origin,dataset)
 
 
 def _get_datafolder_path():
